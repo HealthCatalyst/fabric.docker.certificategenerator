@@ -3,62 +3,60 @@
 set -eu
 
 echo "running docker-entrypoint.sh"
-echo "Version 2018.11.01.01"
+echo "Version 2018.11.01.02"
 
 if [[ ! -d "/opt/certs" ]]; then
 	echo "/opt/certs folder is not present.  Be sure to attach a volume."
 	exit 1
 fi
 
-echo "contents of /opt/certs/server/"
-mkdir -p /opt/certs/server/
+mkdir -p /opt/certs/testca
+mkdir -p /opt/certs/server
 mkdir -p /opt/certs/client
+
+echo "--- /opt/certs/testca/ ----"
+ls /opt/certs/testca/
 echo "-------"
+
+echo "--- /opt/certs/server/ ----"
 ls /opt/certs/server/
 echo "-------"
 
-if [[ -z "${USE_EXISTING_CERTIFICATE:-}" ]]
-then
-	if [[ ! -f "/opt/certs/server/cert.pem" ]]
-	then
-		echo "no certificates found so regenerating them"
+echo "--- /opt/certs/client/ ----"
+ls /opt/certs/client/
+echo "-------"
 
-		# make sure CertHostName and CertPassword are set
-		if [[ ! -z "${CERT_HOSTNAME_FILE:-}" ]]
-		then
-			echo "CERT_HOSTNAME_FILE is set so reading from $CERT_HOSTNAME_FILE"
-			CERT_HOSTNAME=$(cat $CERT_HOSTNAME_FILE)
-		fi
-
-		if [[ -z "${CERT_HOSTNAME:-}" ]]; then
-			echo "CERT_HOSTNAME must be set"
-			exit 1
-		fi
-
-		if [[ ! -z "${CERT_PASSWORD_FILE:-}" ]]
-		then
-			echo "CERT_PASSWORD_FILE is set so reading from $CERT_PASSWORD_FILE"
-			CERT_PASSWORD=$(cat $CERT_PASSWORD_FILE)
-		fi
-
-		if [[ -z "${CERT_PASSWORD:-}" ]]; then
-			echo "CERT_PASSWORD must be set"
-			exit 1
-		fi
-
-		/bin/bash /opt/healthcatalyst/setupca.sh \
-			&& /bin/bash /opt/healthcatalyst/generateservercert.sh \
-			&& /bin/bash /opt/healthcatalyst/generateclientcert.sh fabricrabbitmquser \
-			&& mkdir -p /opt/certs/testca \
-			&& cp /opt/healthcatalyst/testca/cacert.pem /opt/certs/testca \
-			&& mkdir -p /opt/certs/server \
-			&& cp /opt/healthcatalyst/server/cert.pem /opt/certs/server/ \
-			&& cp /opt/healthcatalyst/server/key.pem /opt/certs/server/ \
-			&& mkdir -p /opt/certs/client \
-			&& cp /opt/healthcatalyst/client/*.p12 /opt/certs/client/
-	else
-		echo "certificates already exist so we're not regenerating them"
-	fi
+# make sure CertHostName and CertPassword are set
+if [[ -z "${CERT_HOSTNAME:-}" ]]; then
+	echo "CERT_HOSTNAME must be set"
+	exit 1
 fi
 
-MyHostName="${CERT_HOSTNAME:-$(hostname)}"
+if [[ -z "${CERT_PASSWORD:-}" ]]; then
+	echo "CERT_PASSWORD must be set"
+	exit 1
+fi
+
+if [[ ! -f "/opt/certs/testca/rootCA.crt" ]]
+then
+	echo "no certificates found so regenerating them"
+
+	/bin/bash /opt/healthcatalyst/setupca.sh \
+		&& /bin/bash /opt/healthcatalyst/generateservercert.sh \
+		&& /bin/bash /opt/healthcatalyst/generateclientcert.sh fabricrabbitmquser \
+		&& echo "copying to /opt/certs" \
+		&& mkdir -p /opt/certs/testca \
+		&& cp /opt/healthcatalyst/testca/cacert.pem /opt/certs/testca/rootCA.crt \
+		&& cp /opt/healthcatalyst/testca/cacert.p12 /opt/certs/testca/rootCA.p12 \
+		&& cp /opt/healthcatalyst/testca/private/cakey.pem /opt/certs/testca/rootCA.key \
+		&& mkdir -p /opt/certs/server \
+		&& cp /opt/healthcatalyst/server/cert.pem /opt/certs/server/tls.crt \
+		&& cp /opt/healthcatalyst/server/key.pem /opt/certs/server/tls.key \
+		&& cp /opt/healthcatalyst/server/keycert.p12 /opt/certs/server/tls.p12 \
+		&& mkdir -p /opt/certs/client \
+		&& cp /opt/healthcatalyst/client/fabricrabbitmquser_client_cert.p12 /opt/certs/client/client.p12 \
+		&& cp /opt/healthcatalyst/client/key.pem /opt/certs/client/client.key \
+		&& cp /opt/healthcatalyst/client/cert.pem /opt/certs/client/client.crt
+else
+	echo "certificates already exist so we're not regenerating them"
+fi
