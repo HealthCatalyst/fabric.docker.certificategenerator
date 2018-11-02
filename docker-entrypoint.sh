@@ -37,12 +37,12 @@ if [[ -z "${CERT_PASSWORD:-}" ]]; then
 	exit 1
 fi
 
-if [[ -z "${CERT_USER:-}" ]]; then
+if [[ -z "${CLIENT_CERT_USER:-}" ]]; then
 	echo "CERT_USER must be set"
 	exit 1
 fi
 
-CertUser="${CERT_USER:-}"
+CertUser="${CLIENT_CERT_USER:-}"
 
 if [[ ! -f "/opt/certs/testca/rootCA.p12" ]]
 then
