@@ -4,7 +4,7 @@ set -eu
 
 CertPassword="${CERT_PASSWORD:-}"
 
-CertUser="${CLIENT_CERT_USERNAME:-$1}"
+CertUser="${CERT_USER:-$1}"
 
 if [[ -z "${CERT_PASSWORD:-}" ]]; then
     echo "CERT_PASSWORD must be set"

@@ -3,7 +3,7 @@
 set -eu
 
 echo "running docker-entrypoint.sh"
-echo "Version 2018.11.01.02"
+echo "Version 2018.11.01.03"
 
 if [[ ! -d "/opt/certs" ]]; then
 	echo "/opt/certs folder is not present.  Be sure to attach a volume."
@@ -16,15 +16,15 @@ mkdir -p /opt/certs/client
 
 echo "--- /opt/certs/testca/ ----"
 ls /opt/certs/testca/
-echo "-------"
+echo "---------------------------"
 
 echo "--- /opt/certs/server/ ----"
 ls /opt/certs/server/
-echo "-------"
+echo "---------------------------"
 
 echo "--- /opt/certs/client/ ----"
 ls /opt/certs/client/
-echo "-------"
+echo "---------------------------"
 
 # make sure CertHostName and CertPassword are set
 if [[ -z "${CERT_HOSTNAME:-}" ]]; then
@@ -37,13 +37,20 @@ if [[ -z "${CERT_PASSWORD:-}" ]]; then
 	exit 1
 fi
 
-if [[ ! -f "/opt/certs/testca/rootCA.crt" ]]
+if [[ -z "${CERT_USER:-}" ]]; then
+	echo "CERT_USER must be set"
+	exit 1
+fi
+
+CertUser="${CERT_USER:-}"
+
+if [[ ! -f "/opt/certs/testca/rootCA.p12" ]]
 then
 	echo "no certificates found so regenerating them"
 
 	/bin/bash /opt/healthcatalyst/setupca.sh \
 		&& /bin/bash /opt/healthcatalyst/generateservercert.sh \
-		&& /bin/bash /opt/healthcatalyst/generateclientcert.sh fabricrabbitmquser \
+		&& /bin/bash /opt/healthcatalyst/generateclientcert.sh $CertUser \
 		&& echo "copying to /opt/certs" \
 		&& mkdir -p /opt/certs/testca \
 		&& cp /opt/healthcatalyst/testca/cacert.pem /opt/certs/testca/rootCA.crt \
