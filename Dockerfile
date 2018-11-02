@@ -11,7 +11,8 @@ RUN yum -y update \
 	&& mkdir -p /opt/healthcatalyst/testca/private \
 	&& chmod 700 /opt/healthcatalyst/testca/private \
 	&& echo 01 > /opt/healthcatalyst/testca/serial \
-	&& touch /opt/healthcatalyst/testca/index.txt
+	&& touch /opt/healthcatalyst/testca/index.txt \
+	&& yum -y clean all
 
 COPY scripts /opt/healthcatalyst/
 

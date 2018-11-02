@@ -20,7 +20,7 @@ echo "Creating private key cakey.pem"
 sudo openssl genrsa -out /opt/healthcatalyst/testca/private/cakey.pem 2048
 
 echo "Generating CA certificate cacert.pem"
-openssl req -x509 -config openssl.cnf -key /opt/healthcatalyst/testca/private/cakey.pem -days 3650 -out cacert.pem -outform PEM -subj /CN=FabricCertificateAuthority/O=HealthCatalyst/ -nodes
+openssl req -x509 -new -nodes -config openssl.cnf -key /opt/healthcatalyst/testca/private/cakey.pem -sha256 -days 3650 -out cacert.pem -outform PEM -subj /CN=FabricCertificateAuthority/O=HealthCatalyst/
 
 echo "Converting cacert.pem to cacert.cer".
 openssl x509 -in cacert.pem -out cacert.cer -outform DER
