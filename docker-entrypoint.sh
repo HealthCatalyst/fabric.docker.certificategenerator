@@ -44,6 +44,8 @@ fi
 
 CertUser="${CLIENT_CERT_USER:-}"
 
+export CERT_HOSTNAME_WITHOUT_DOMAIN=$(echo "${CERT_HOSTNAME}" | cut -d"." -f1)
+
 if [[ ! -f "/opt/certs/testca/rootCA.p12" ]]
 then
 	echo "no certificates found so regenerating them"

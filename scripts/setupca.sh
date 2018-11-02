@@ -19,8 +19,6 @@ echo "--- Creating a self-signed certificate that will serve a certificate autho
 echo "Creating private key cakey.pem"
 sudo openssl genrsa -out /opt/healthcatalyst/testca/private/cakey.pem 2048
 
-CERT_HOSTNAME_WITHOUT_DOMAIN=$(echo "${CERT_HOSTNAME}" | cut -d"." -f1)
-
 # https://security.stackexchange.com/questions/74345/provide-subjectaltname-to-openssl-directly-on-command-line
 
 echo "Generating CA certificate cacert.pem"
@@ -29,8 +27,6 @@ openssl req -x509 -new -nodes -config openssl.cnf \
         -sha256 -days 3650 \
         -subj /CN=FabricCertificateAuthority/O=HealthCatalyst/ \
         -reqexts SAN -extensions SAN \
-        -config <(cat openssl.cnf \
-            <(printf "\n[SAN]\nsubjectAltName=DNS:${CERT_HOSTNAME},DNS:${CERT_HOSTNAME_WITHOUT_DOMAIN}")) \
         -out cacert.pem -outform PEM
 
 echo "----- Checking the CA root certificate ----"

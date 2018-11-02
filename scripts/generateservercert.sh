@@ -30,9 +30,6 @@ echo "Generate a certificate req.pem from our private key."
 openssl req -new -key key.pem -out req.pem \
         -outform PEM \
         -subj /CN=$MyHostName/O=HealthCatalyst/ \
-        -reqexts SAN -extensions SAN \
-        -config <(cat /opt/healthcatalyst/testca/openssl.cnf \
-            <(printf "\n[SAN]\nsubjectAltName=DNS:${CERT_HOSTNAME},DNS:${CERT_HOSTNAME_WITHOUT_DOMAIN}")) \
         -nodes
 
 echo "---- Sign the certificate with our CA ---"
@@ -40,9 +37,6 @@ cd /opt/healthcatalyst/testca
 openssl ca -config openssl.cnf -in /opt/healthcatalyst/server/req.pem \
         -out /opt/healthcatalyst/server/cert.pem \
         -notext -batch \
-        -extensions SAN \
-        -config <(cat /opt/healthcatalyst/testca/openssl.cnf \
-            <(printf "\n[SAN]\nsubjectAltName=DNS:${CERT_HOSTNAME},DNS:${CERT_HOSTNAME_WITHOUT_DOMAIN}")) \
         -extensions server_ca_extensions
 
 echo "----- Checking the server certificate ----"
