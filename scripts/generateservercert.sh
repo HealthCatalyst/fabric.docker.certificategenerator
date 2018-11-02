@@ -27,13 +27,19 @@ openssl genrsa -out key.pem 2048
 echo "Generate a certificate req.pem from our private key."
 openssl req -new -key key.pem -out req.pem -outform PEM -subj /CN=$MyHostName/O=HealthCatalyst/ -nodes
 
-echo "Sign the certificate with our CA."
+echo "---- Sign the certificate with our CA ---"
 cd /opt/healthcatalyst/testca
 openssl ca -config openssl.cnf -in /opt/healthcatalyst/server/req.pem -out /opt/healthcatalyst/server/cert.pem -notext -batch -extensions server_ca_extensions
 
-echo "Create a key store that will contain our certificate. keycert.p12"
+echo "----- Checking the certificate ----"
+openssl x509 -in /opt/healthcatalyst/server/cert.pem -text -noout
+
+echo "---- Create a key store that will contain our certificate. keycert.p12 ----"
 cd /opt/healthcatalyst/server
 openssl pkcs12 -export -out keycert.p12 -in cert.pem -inkey key.pem -passout pass:$CertPassword
+
+echo "creating a combined server + root cert"
+cat /opt/healthcatalyst/server/cert.pem /opt/healthcatalyst/testca/cacert.pem > /opt/healthcatalyst/server/ca-chain.pem
 
 echo "contents of /opt/healthcatalyst/server"
 ls -al /opt/healthcatalyst/server

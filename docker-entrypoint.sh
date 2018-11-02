@@ -3,7 +3,7 @@
 set -eu
 
 echo "running docker-entrypoint.sh"
-echo "Version 2018.11.01.03"
+echo "Version 2018.11.02.01"
 
 if [[ ! -d "/opt/certs" ]]; then
 	echo "/opt/certs folder is not present.  Be sure to attach a volume."
@@ -59,6 +59,7 @@ then
 		&& mkdir -p /opt/certs/server \
 		&& cp /opt/healthcatalyst/server/cert.pem /opt/certs/server/tls.crt \
 		&& cp /opt/healthcatalyst/server/key.pem /opt/certs/server/tls.key \
+		&& cp /opt/healthcatalyst/server/ca-chain.pem /opt/certs/server/tlschain.crt \
 		&& cp /opt/healthcatalyst/server/keycert.p12 /opt/certs/server/tls.p12 \
 		&& mkdir -p /opt/certs/client \
 		&& cp /opt/healthcatalyst/client/fabricrabbitmquser_client_cert.p12 /opt/certs/client/client.p12 \

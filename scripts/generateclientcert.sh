@@ -29,6 +29,9 @@ echo "Sign the certificate with our CA."
 cd /opt/healthcatalyst/testca
 openssl ca -config openssl.cnf -in /opt/healthcatalyst/client/req.pem -out /opt/healthcatalyst/client/cert.pem -notext -batch -extensions client_ca_extensions
 
+echo "----- Checking the certificate ----"
+openssl x509 -in /opt/healthcatalyst/client/cert.pem -text -noout
+
 echo "Create a key store that will contain our certificate."
 cd /opt/healthcatalyst/client
 openssl pkcs12 -export -out "$CertUser"_client_cert.p12 -in cert.pem -inkey key.pem -passout pass:$CertPassword
