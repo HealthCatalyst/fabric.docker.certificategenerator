@@ -3,11 +3,11 @@
 set -eu
 
 echo "running docker-entrypoint.sh"
-echo "Version 2018.11.02.02"
+echo "Version 2018.11.13.01"
 
 if [[ ! -d "/opt/certs" ]]; then
-	echo "/opt/certs folder is not present.  Be sure to attach a volume."
-	exit 1
+	echo "/opt/certs folder is not present.  Creating it..."
+	mkdir -p /opt/certs
 fi
 
 mkdir -p /opt/certs/testca
@@ -69,4 +69,8 @@ then
 		&& cp /opt/healthcatalyst/client/cert.pem /opt/certs/client/client.crt
 else
 	echo "certificates already exist so we're not regenerating them"
+fi
+
+if [[ ! -z "${SAVE_KUBERNETES_SECRET:-}" ]]; then
+	echo "Saving kubernetes secret"
 fi
