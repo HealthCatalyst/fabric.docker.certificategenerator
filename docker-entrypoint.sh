@@ -3,7 +3,7 @@
 set -eu
 
 echo "running docker-entrypoint.sh"
-echo "Version 2018.11.13.02"
+echo "Version 2018.11.13.03"
 
 if [[ ! -d "/opt/certs" ]]; then
 	echo "/opt/certs folder is not present.  Creating it..."
@@ -73,6 +73,7 @@ fi
 
 if [[ ! -z "${SAVE_KUBERNETES_SECRET:-}" ]]; then
 	echo "Saving kubernetes secret 2"
+	# kubectl get nodes
 fi
 
 if [[ ! -z "${SLEEP_FOREVER:-}" ]]; then

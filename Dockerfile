@@ -3,6 +3,8 @@ FROM healthcatalyst/fabric.baseos:latest
 LABEL maintainer="Health Catalyst"
 LABEL version="1.0"
 
+ADD kubernetes.repo ./kubernetes.repo
+
 RUN yum -y update \
     && yum -y install openssl \
     && mkdir -p /opt/healthcatalyst/testca \
@@ -12,6 +14,8 @@ RUN yum -y update \
 	&& chmod 700 /opt/healthcatalyst/testca/private \
 	&& echo 01 > /opt/healthcatalyst/testca/serial \
 	&& touch /opt/healthcatalyst/testca/index.txt \
+	&& yum-config-manager --add-repo ./kubernetes.repo \
+	&& yum -y install kubectl \
 	&& yum -y clean all
 
 COPY scripts /opt/healthcatalyst/
