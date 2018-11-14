@@ -3,7 +3,7 @@
 set -eu
 
 echo "running docker-entrypoint.sh"
-echo "Version 2018.11.13.03"
+echo "Version 2018.11.13.04"
 
 if [[ ! -d "/opt/certs" ]]; then
 	echo "/opt/certs folder is not present.  Creating it..."
@@ -72,8 +72,44 @@ else
 fi
 
 if [[ ! -z "${SAVE_KUBERNETES_SECRET:-}" ]]; then
-	echo "Saving kubernetes secret 2"
-	# kubectl get nodes
+	namespace="${SECRET_NAMESPACE:-kube-system}"
+	echo "--- Saving ssl certs as kubernetes secrets in namespace $namespace ---"
+	cd /opt/certs
+
+	cacert="${SECRETNAME_CA_CERT:-fabric-ca-cert}"
+	# https://gist.github.com/fntlnz/cf14feb5a46b2eda428e000157447309
+	echo "setting $cacert secret"
+	kubectl delete secret $cacert -n $namespace --ignore-not-found=true
+	kubectl create secret tls $cacert -n $namespace --key "testca/rootCA.key" --cert "testca/rootCA.crt"
+
+	sslcert="${SECRETNAME_SSL_CERT:-fabric-ssl-cert}"
+	echo "Setting $sslcert any old TLS certs"
+	kubectl delete secret $sslcert -n $namespace --ignore-not-found=true
+
+	echo "Storing TLS certs as kubernetes secret"
+	kubectl create secret tls $sslcert -n $namespace --key "server/tls.key" --cert "server/tls.crt"
+
+	clientcert="${SECRETNAME_CLIENT_CERT:-fabric-client-cert}"
+	echo "setting $clientcert secret"
+	kubectl delete secret $clientcert -n $namespace --ignore-not-found=true
+	kubectl create secret tls $clientcert -n $namespace --key "client/client.key" --cert "client/client.crt"
+
+	cacertdownload="${SECRETNAME_CA_CERT_DOWNLOADFILE:-fabric_ca_cert.p12}"
+	echo "copying testca/rootCA.p12 to $cacertdownload"
+	cp testca/rootCA.p12 $cacertdownload
+
+	clientcertdownload="${SECRETNAME_CLIENT_CERT_DOWNLOADFILE:-fabricrabbitmquser_client_cert.p12}"
+	echo "copying client/client.p12 to $clientcertdownload"
+	cp client/client.p12 $clientcertdownload
+
+	downloadcert="${SECRETNAME_DOWNLOAD_SSL_CERT:-fabric-ssl-download-cert}"
+	echo "setting $downloadcert secret"
+	kubectl delete secret $downloadcert -n $namespace --ignore-not-found=true
+	kubectl create secret generic $downloadcert -n $namespace \
+		--from-file="$cacertdownload" \
+		--from-file="$clientcertdownload"
+
+	echo "--- Finished creating kubernetes secrets ---"
 fi
 
 if [[ ! -z "${SLEEP_FOREVER:-}" ]]; then

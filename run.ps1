@@ -11,3 +11,12 @@ docker run --rm `
     -e SLEEP_FOREVER="true" `
     --name fabric.docker.certificategenerator `
     -t healthcatalyst/fabric.docker.certificategenerator
+
+# docker run -it `
+#     -e CERT_HOSTNAME=kubmaster.mshome.net `
+#     -e CERT_PASSWORD=mypassword `
+#     -e CLIENT_CERT_USER=fabricrabbitmquser `
+#     -e SAVE_KUBERNETES_SECRET2="true" `
+#     -e SLEEP_FOREVER="true" `
+#     --name fabric.docker.certificategenerator `
+#     -t healthcatalyst/fabric.docker.certificategenerator
