@@ -24,8 +24,6 @@ cd /opt/healthcatalyst/server
 echo "Creating private key key.pem"
 openssl genrsa -out key.pem 2048
 
-CERT_HOSTNAME_WITHOUT_DOMAIN=$(echo "${CERT_HOSTNAME}" | cut -d"." -f1)
-
 echo "Generate a certificate req.pem from our private key."
 openssl req -new -key key.pem -out req.pem \
         -outform PEM \

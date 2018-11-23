@@ -3,7 +3,7 @@
 set -eu
 
 echo "running docker-entrypoint.sh"
-echo "Version 2018.11.13.04"
+echo "Version 2018.11.23.01"
 
 if [[ ! -d "/opt/certs" ]]; then
 	echo "/opt/certs folder is not present.  Creating it..."
@@ -45,6 +45,8 @@ fi
 CertUser="${CLIENT_CERT_USER:-}"
 
 export CERT_HOSTNAME_WITHOUT_DOMAIN=$(echo "${CERT_HOSTNAME}" | cut -d"." -f1)
+export CERT_HOSTNAME_INTERNAL="internal.${CERT_HOSTNAME:-}"
+export CERT_HOSTNAME_INTERNAL2="internal-${CERT_HOSTNAME:-}"
 
 if [[ ! -f "/opt/certs/testca/rootCA.p12" ]]
 then
